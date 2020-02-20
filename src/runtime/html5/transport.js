@@ -23,7 +23,14 @@ define([
                 opts = this.options,
                 xhr = this._initAjax(),
                 blob = owner._blob,
-                server = opts.server,
+
+                // <modified>
+
+                // server = opts.server,
+                server = blob.url,
+
+                // </modified>
+
                 formData, binary, fr;
 
             if ( opts.sendAsBinary ) {

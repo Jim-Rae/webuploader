@@ -4184,19 +4184,27 @@
     
                     file.setStatus( Status.INTERRUPT );
     
+                    // <modified>
     
-                    $.each( me.pool, function( _, v ) {
+                    // me._popBlock(v) 会删除me.pool数组里的元素，导致遍历不全
+                    // 引入变量 e 进行校正
+                    var e = 0;
+                    $.each( me.pool, function( index ) {
+                        var v = me.pool[index - e];
     
                         // 只 abort 指定的文件，每一个分片。
-                        if (v.file === file) {
+                        if (v && v.file === file) {
                             v.transport && v.transport.abort();
     
                             if (interrupt) {
                                 me._putback(v);
                                 me._popBlock(v);
+                                e++;
                             }
                         }
                     });
+    
+                    // </modified>
     
                     me.owner.trigger('stopUpload', file);// 暂停，trigger event
     
@@ -4431,7 +4439,6 @@
                             file.getStatus() === Status.INTERRUPT ) {
                             return file;
                         }
-    
                         return me._finishFile( file );
                     });
     
@@ -4689,15 +4696,21 @@
                     chunk: block.chunk
                 });
     
-                // 在发送之间可以添加字段什么的。。。
-                // 如果默认的字段不够使用，可以通过监听此事件来扩展
-                owner.trigger( 'uploadBeforeSend', block, data, headers );
+                // <modified>
     
-                // 开始发送。
-                tr.appendBlob( opts.fileVal, block.blob, file.name );
-                tr.append( data );
-                tr.setRequestHeader( headers );
-                tr.send();
+                // 在发送之间可以添加字段什么的。。。
+                // 如果默认的字段不够使用，可以通过监听此事件来扩展            
+                if (owner.trigger( 'uploadBeforeSend', block, data, headers )) {               
+                    // 开始发送。
+                    tr.appendBlob( opts.fileVal, block.blob, file.name );
+                    tr.append( data );
+                    tr.setRequestHeader( headers );
+                    tr.send();
+                } else {
+                    me.stopUpload(file, true);
+                }
+    
+                // </modified>
             },
     
             // 完成上传。
@@ -6480,7 +6493,14 @@
                     opts = this.options,
                     xhr = this._initAjax(),
                     blob = owner._blob,
-                    server = opts.server,
+    
+                    // <modified>
+    
+                    // server = opts.server,
+                    server = blob.url,
+    
+                    // </modified>
+    
                     formData, binary, fr;
     
                 if ( opts.sendAsBinary ) {
