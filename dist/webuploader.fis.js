@@ -2883,10 +2883,14 @@ module.exports = (function( root, factory ) {
     
             // 判断文件是否可以被加入队列
             acceptFile: function( file ) {
-                var invalid = !file || !file.size || this.accept &&
+                // <modified>
+    
+                var invalid = !file || this.accept &&
     
                         // 如果名字中有后缀，才做后缀白名单处理。
                         rExt.exec( file.name ) && !this.accept.test( file.name );
+    
+                // </modified>
     
                 return !invalid;
             },
@@ -3402,7 +3406,13 @@ module.exports = (function( root, factory ) {
             var pending = [],
                 blob = file.source,
                 total = blob.size,
-                chunks = chunkSize ? Math.ceil( total / chunkSize ) : 1,
+    
+                // <modified>
+    
+                chunks = chunkSize ? Math.max(Math.ceil( total / chunkSize ), 1) : 1,
+    
+                // </modified>
+    
                 start = 0,
                 index = 0,
                 len, api;
@@ -4194,6 +4204,15 @@ module.exports = (function( root, factory ) {
                 });
     
                 totalPercent = uploaded / file.size;
+    
+                // <modified>
+    
+                if (file.size === 0) {
+                    totalPercent = 1;
+                }
+    
+                // </modified>
+    
                 this.owner.trigger( 'uploadProgress', file, totalPercent || 0 );
             },
     
