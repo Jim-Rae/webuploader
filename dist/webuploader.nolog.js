@@ -3573,9 +3573,10 @@
                             }
     
                             v.transport && v.transport.send();
-                            file.setStatus( Status.PROGRESS );
+                            
                         });
     
+                        file.setStatus( Status.PROGRESS );
                         
                     } else if (file.getStatus() !== Status.PROGRESS) {
                         file.setStatus( Status.QUEUED );
@@ -3679,6 +3680,8 @@
                             if (interrupt) {
                                 me._putback(v);
                                 me._popBlock(v);
+                                // 调整
+                                v.file.remaning++;
                                 e++;
                             }
                         }
