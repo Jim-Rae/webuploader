@@ -3423,7 +3423,13 @@
                 if (!~idx) {
                     // 如果不在里面，说明移除过，需要把计数还原回去。
                     this.remaning++;
-                    block.file.remaning++;
+    
+                    // <modified>
+    
+                    // block.file.remaning++;
+    
+                    // </modified>
+    
                     this.stack.unshift(block.cuted);
                 }
             },
